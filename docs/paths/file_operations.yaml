@@ -1,0 +1,705 @@
+baseFileRoute:
+  post:
+    tags:
+      - Operaciones de archivo
+    summary: Crear un archivo
+    description: | 
+      Permite a un doctor subir UN archivo junto con su metadata para guardarse en la MongoDB y la S3. 
+      Para subida de multiples archivos, se requerira llamar varias veces a este endpoint **una por cada archivo que se quiera subir.** 
+      
+      _**Nota: Cada campo de la respuesta es un campo del multipart-form-data**_
+      
+      ### Ejemplo
+      Redocly, no soporta mostrar ejemplos de multipart-form-data, así que acontinuación se provee uno
+      ```
+      POST /upload HTTP/1.1
+      Host: example.com
+      Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+      ------WebKitFormBoundary7MA4YWxkTrZu0gW
+      Content-Disposition: form-data; name="metadata"
+      Content-Type: application/json
+
+      {
+        "doctorId": "12345dvdsedf32",
+        "recordId": "12345dvdsedf32",
+        "templateId": "6789032vbad3295",
+        "name": "Consulta 3",
+        "category": "Consultas",
+        "fields": [
+          {
+            "name": "Fificultad",
+            "value": 45
+          },
+          {
+            "name": "diagnosis",
+            "value": "Hypertension"
+          },
+          {
+            "name": "notas",
+            "value": "Patient shows improvement"
+          }
+        ]
+      }
+      ------WebKitFormBoundary7MA4YWxkTrZu0gW
+      Content-Disposition: form-data; name="file"; filename="cita1.pdf"
+      Content-Type: application/pdf
+
+      <contenido binario del archivo PDF>
+      ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+      ```
+
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              metadata: 
+                format: application/json
+                type: object
+                properties: 
+                  doctorId: 
+                    type: string
+                  recordId: 
+                    type: string
+                  templateId:
+                    type: string
+                    description: Plantilla de archivo que seguira este nuevo documento.
+                  name: 
+                    type: string
+                    description: Nombre del archivo. No se pueden crear archivos con el mismo nombre.
+                  category:
+                    type: string
+                    description: Categoria del documento, es definida por el doctor, y ayudara a filtrar.
+                  fields: 
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Nombre del campo definido por la plantilla.
+                        value:
+                          description: Valor para el campo definido.
+              file:
+                format: application/pdf
+                description: Información binaria del archivo PDF.
+    responses:
+      '200':
+        description: Archivo creado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: number
+                  example: 200
+                message: 
+                  type: string
+                  example: File created succesfully
+                fileId:
+                  type: string
+                  example: a3098bakd2lb0slal
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: Doctor, plantilla o record no encontrados.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '405':
+        description: Los valores de ciertos campos no corresponden con el tipo esperado (TEXT, NUMBER, FLOAT, CHOICE).
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '406':
+        description: Un archivo con el mismo nombre ya se encuentra en uso dentro del mismo expediente.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '422':
+        description: No se pudo procesar el archivo, por información invalida o corrupta.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error interno del server, no se pudo completar la súbida del archivo.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+  put:
+    tags:
+      - Operaciones de archivo
+    summary: Editar un archivo
+    description: Es necesario pasar SOLO los campos, que requieren edición en el array `fields`. Solo se puede cambiar la metadata, pero no el archivo pdf en si.
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties: 
+              doctorId: 
+                type: string
+              fileId: 
+                type: string
+              name: 
+                type: string
+                description: Nombre del archivo. No se pueden crear archivos con el mismo nombre.
+              category:
+                type: string
+                description: Categoria del documento, es definida por el doctor, y ayudara a filtrar.
+              fields: 
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nombre del campo definido por la plantilla.
+                    value:
+                      description: Valor para el campo definido.
+    responses:
+      '200':
+        description: Operación exitosa.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '403':
+        description: No se tienen permisos para editar el expediente.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: Doctor, o record no encontrados.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '405':
+        description: Los valores de ciertos campos no corresponden con el tipo esperado (TEXT, NUMBER, FLOAT, CHOICE).
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '406':
+        description: No se puede renombrar a un nombre que ya se encuentra en uso dentro del mismo expediente.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error interno del server.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+  delete:
+    tags:
+      - Operaciones de archivo
+    summary: Elimina un archivo existente
+    description: Permite a los usuarios eliminar un archivo existente, tanto en la base de datos como en S3.
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              doctorId:
+                type: string
+                description: ID del doctor dueño del archivo.
+              fileId:
+                type: string
+                description: ID del archivo a eliminar.
+    responses:
+      '200':
+        description: Archivo eliminado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                  example: "Expediente eliminado exitosamente."
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '403':
+        description: No se tiene permisos para eliminar el archivo.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: Doctor o archivo no encontrados.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error interno del servidor.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+  get: 
+    tags:
+      - Operaciones de archivo
+    summary: Obtener un objeto archivo.
+    description: Devuelve toda la metadata del archivo en formato JSON.
+    parameters:
+      - in: query
+        name: fileId
+        required: true
+        description: ID del archivo a obtener.
+        schema:
+          type: string
+          example: "60d0fe4f5311236168a109cc"
+      - in: query
+        name: doctorId
+        required: true
+        description: ID del doctor asociado al archivo.
+        schema:
+          type: string
+          example: "60d0fe4f5311236168a109ca"
+    responses:
+      '200':
+        description: Lista de archivos obtenida exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: 
+                  type: number
+                  example: 200
+                message: 
+                  type: string
+                  example: "Operation succesful"
+                fileId: 
+                  type: string
+                  description: ID del archivo.
+                fileURL:
+                  type: string
+                  description: AWS Url with expiration to download a pdf file.
+                recordId: 
+                  type: string
+                  description: ID del expediente al que este pertenece.
+                templateId:
+                  type: string
+                  description: Plantilla de archivo que seguira este nuevo documento.
+                name: 
+                  type: string
+                  description: Nombre del archivo. No se pueden crear archivos con el mismo nombre.
+                category:
+                  type: string
+                  description: Categoria del documento, es definida por el doctor, y ayudara a filtrar.
+                createdAt: 
+                  type: string
+                  description: should be on ISO8601 format.
+                pages:
+                  type: number
+                fields: 
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: Nombre del campo definido por la plantilla.
+                      type:
+                        type: string
+                        enum:
+                        - NUMBER
+                        - FLOAT
+                        - TEXT
+                        - SHORT_TEXT
+                        - DATE
+                        - CHOICE
+                        description: Tipo del campo.
+                      options:
+                        type: array
+                        description: Si el campo es de tipo CHOICE, mostrar cuales son las opciones disponibles.
+                        items:
+                          type: string
+                      value:
+                        description: Valor para el campo definido.
+                      required:
+                        type: boolean
+                        description: Si este campo quiere estar lleno.
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '403':
+        description: No se tiene permisos para obtener el archivo.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: Archivo o doctor no encontrados.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error interno del servidor.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+searchFiles:
+  get:
+    tags:
+      - Operaciones de archivo
+    summary: Listar campos posibles
+    description: |
+      La DB tiene expedientes que siguen variedad de plantillas. Este endpoint permite conocer todos los posibles campos bajo los que se pueden filtrar y ordenar archivos. 
+      Tomando en cuenta todos los campos existentes entre la variedad de archivos.
+    parameters:
+      - in: query
+        name: doctorId
+        required: true
+        description: Doctor del que se quiere saber los campos.
+        schema:
+          type: string
+          example: "60d0fe4f5311236168a109ca"
+    responses:
+      '200':
+        description: Lista de expedientes obtenida exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                fields:
+                  type: array
+                  description: todos los campos bajo los que se puede filtrar y ordenar.
+                  items:
+                    type: object
+                    properties:
+                      name: 
+                        type: string
+                        example: "dificultad"
+                      type: 
+                        type: string
+                        example: "NUMBER"
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: Doctor no encontrado.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error interno del servidor.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+  post:
+    tags:
+      - Operaciones de archivo
+    summary: Buscar archivos
+    description: |
+      Permite a los usuarios listar todos los files asociados a un doctor y expediente específico, con soporte para filtros, paginación y ordenamiento.
+      
+      Estos son los filtros y modos de ordenamiento existentes para cada tipo de dato:
+
+      SHORT_TEXT & TEXT
+        - filtros
+          - **contains**: 1 input. Ej: ["enmedio"]
+          - **starts_with**: 1 input. Ej: ["hola"]
+          - **ends_with**: 1 input. Ej: ["adios"]
+        - ordenamiento:
+          - **asc**: A - Z - expedientes sin atributo
+          - **desc**: expedientes sin atributo - Z - A
+
+      DATE: 
+        - Nota: Datos deben estar en formato ISO8601. 
+        - filtros
+          - **After**: 1 input. Ej: ['2024-10-13T14:30:00Z']
+          - **before**: 1 input. Ej: ['2024-10-13T14:30:00Z']
+          - **between**: 2 inputs. Ej : ['2024-10-13T14:30:00Z', '2024-15-13T14:30:00Z']
+        - ordenamiento:
+          - **asc**: mas antiguo - mas reciente - expedientes sin atributo
+          - **desc**: expedientes sin atributo - mas reciente - mas antiguo
+
+      NUMBER & FLOAT
+        - filtros
+          - **less_than**: 1 input . Ej: [13]
+          - **equal_than**: 1 input Ej: [11]
+          - **greater_than**: 1 input.  Ej: [52]
+        - ordenamiento:
+          - **asc**: menor valor - mayor valor - expedientes sin atributo
+          - **desc**: mayor valor - menor valor - expedientes sin atributo
+
+      CHOICE
+        - filtros
+          - **is**: 1 input. Ej ["opcion1"]
+          - **is_not**: 1 input. Ej: ["opcion2"]
+          - **is_not_empty**: 0 inputs. Ej : []
+        - ordenamiento:
+          - **asc**: A - Z - expedientes sin atributo
+          - **desc**: expedientes sin atributo - Z - A
+    
+      Por ultimo, para el filtrado es necesario especificar el campo `logicGate`, que se refiere a como se van a aplicar los filtros. Por ejemplo, si se enviansen los filtros:
+      ```
+      [
+        { name: "field1", logicGate: "and"},
+        { name: "field2", logicGate: "or"},
+        { name: "field3", logicGate: "or"},
+        { name: "field4", logicGate: "and"},
+      ]
+      ```
+      Se traduciria en un query como:
+      ```
+        field1 AND (field2 OR (field3 OR (field4))
+      ```
+      Darse cuenta como el ultimo `logicGate AND` no se toma en cuenta, porque ya no hay otro filtro con que concatenarlo.
+
+
+      Nota: Este es un ejemplo simplicado, obviamente falta enviar `value` y `type`.
+
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              doctorId:
+                type: string
+                description: ID del doctor asociado a los expedientes.
+                example: "60d0fe4f5311236168a109ca"
+              recordId:
+                type: string
+                description: ID del expediente donde se debe filtrar.
+                example: "60d0fe4f5311236168a109ca"
+              limit:
+                type: integer
+                description: Cantidad máxima de items por pagina.
+                example: 10
+              page:
+                type: integer
+                description: Página de la que listar expedientes.
+                example: 0
+              category:
+                type: string
+                description: |
+                  Permite tomar en cuenta los archivos solo de una categoria, definidas por la plantilla del expedientes.
+                  **Si no se quiere aplicar este filtro, dejar el string vacio.**
+                example: "test medicos"
+              fields:
+                type: array
+                description: Ya que devolver la info de todos los campos de los expedientes se puede hacer muy pesado. En esta lista se solicita los campos que hay que devolver. Para saber mas de un expediente usar GET /records/
+                items:
+                  type: object
+                  properties:
+                    name: 
+                      type: string
+                      example: "nombres"
+                    type: 
+                      type: string
+                      example: "SHORT_TEXT"
+              sorts:
+                type: array
+                description: Criterios de ordenamiento para los expedientes.
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nombre del campo del paciente por el cual ordenar.
+                      example: "Age"
+                    type: 
+                      type: string
+                      example: "SHORT_TEXT"
+                    mode:
+                      type: string
+                      description: Modo de ordenamiento, ya sea 'asc' para ascendente o 'desc' para descendente. Por defecto los expedientes QUE NO TENGAN el campo por el que ordenar, se colocarán de último en modo 'desc', y primero en modo 'asc'
+                      example: "asc"
+              filters:
+                type: array
+                description: Filtros a aplicar sobre los expedientes.
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nombre del campo por el que filtrar.
+                      example: "Birthday"
+                    type: 
+                      type: string
+                      example: "NUMBER"
+                    operation:
+                      type: string
+                      description: Tipo de operación del filtro, puede ser uno de ['contains', 'starts_with', 'ends_with', 'greater_than', 'less_than', 'equal_than', 'is', 'is_not', 'is_not_empty', 'after', 'before', 'between'].
+                      example: "between"
+                    values:
+                      type: array
+                      description: Valores para el filtro aplicado. La cantidad de items dependerá del tipo de 'operation', para 'operation' que no redivan values, enviar el array vacio.
+                      example: ['1/2/2024', '23/3/2/2023']
+                    logicGate:
+                      type: string
+                      description: Operador lógico a aplicar entre filtros (and, or), se aplicara al filtro que suceda a este.
+                      example: "and"
+    responses:
+      '200':
+        description: Lista de expedientes obtenida exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                files:
+                  type: array
+                  description: Lista de expedientes.
+                  items:
+                    type: object
+                    properties:
+                      fileId:
+                        type: string
+                        description: ID de la plantilla que sigue el expediente.
+                        example: "60d0fe4f5311236168a109cc"
+                      templateId:
+                        type: string
+                        description: ID de la plantilla que sigue el expediente.
+                        example: "60d0fe4f5311236168a109cc"
+                      name:
+                        type: string
+                        description: Nombre del archivo
+                        example: "Consulta 1"
+                      createdAt:
+                        type: string
+                        description: en formato ISO8601.
+                      pages:
+                        type: number
+                        description: numero de paginas del PDF.
+                      fields:
+                        type: array
+                        description: Lista de los list especificados en la request.
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              description: Nombre del campo.
+                              example: "Ultima revision"
+                            type:
+                              type: string
+                              description: Tipo del campo, puede ser uno de ['SHORT_TEXT', 'TEXT', 'DATE', 'NUMBER', 'FLOAT', 'CHOICE'].
+                              example: "DATE"
+                            options:
+                              type: array
+                              description: Opciones para los campos de tipo 'CHOICE', si corresponde.
+                              items:
+                                type: string
+                              example:
+                                - "Casado"
+                                - "Soltero"
+                            value:
+                              type: string
+                              description: Valor seleccionado o ingresado para este campo.
+                              example: "2024-09-01"
+                            required:
+                              type: boolean
+                              description: Indica si el campo es obligatorio.
+                              example: true
+                total:
+                  type: integer
+                  description: Número total de expedientes que coinciden con los filtros.
+                  example: 25
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Missing Fields."
+      '404':
+        description: Doctor no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Doctor not found."
+      '405':
+        description: Los valores de ciertos campos no corresponden con el tipo esperado (TEXT, NUMBER, FLOAT, CHOICE)
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Records not found"
+      '500':
+        description: Error interno del servidor.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Error al listar los expedientes debido a invalido value."
+    
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        status: 
+          type: integer
+        message: 
+          type: string

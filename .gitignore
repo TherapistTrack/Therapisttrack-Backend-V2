@@ -1,0 +1,9 @@
+node_modules
+.DS_Store
+keys.env
+coverage
+.vscode
+.env
+logs
+dck.sh
+target

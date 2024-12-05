@@ -1,0 +1,698 @@
+baseRecordRoute:
+  post:
+    tags:
+      - Operaciones de expedientes
+    summary: Crear expediente para un paciente
+    description: Permite a un doctor crear el expediente de un paciente EN BASE A UNA PLANTILLA, cualquier dato que no coincida con las especificaciones de la plantilla devolvera un fallo.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              doctorId:
+                type: string
+                description: ID del doctor asociado al expediente.
+                example: "60d0fe4f5311236168a109ca"
+              templateId:
+                type: string
+                description: ID de la plantilla asociada al expediente.
+                example: "60d0fe4f5311236168a109cb"
+              patient:
+                type: object
+                description: Información del paciente para el expediente.
+                properties:
+                  names:
+                    type: string
+                    description: Nombre del paciente.
+                    example: "Juan"
+                  lastnames:
+                    type: string
+                    description: Apellidos del paciente.
+                    example: "Pérez García"
+                  fields:
+                    type: array
+                    description: Lista de campos adicionales del paciente.
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Nombre del campo.
+                          example: "Estado Civil"
+                        value:
+                          description: Valor del campo, tiene coincidir con el TIPO indicado por la plantilla
+                          example: "Opción 1"
+            required:
+              - doctor
+              - template
+              - patient
+    responses:
+      '200':
+        description: Expediente creado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                  example: "Record created successfully"
+                recordId:
+                  type: string
+                  description: ID del expediente recién creado.
+                  example: "60d0fe4f5311236168a109cc"
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: Doctor o Plantilla no encontrados.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '405':
+        description: Los valores de ciertos campos no corresponden con el tipo esperado (TEXT, NUMBER, FLOAT, CHOICE).
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error interno del servidor.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+    
+  put:
+    tags:
+      - Operaciones de expedientes
+    summary: Editar un expediente
+    description: 'Editara un expediente. Nota: solo se permitira de nombre, apellidos y el valor de los campos, además es necesario pasar TODOS los campos del paciente, no solo el que fue editado, siempre siguiendo su plantilla.'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              recordId:
+                type: string
+                description: ID del expediente a editar.
+                example: "60d0fe4f5311236168a109cc"
+              doctorId:
+                type: string
+                description: ID del doctor asociado al expediente.
+                example: "60d0fe4f5311236168a109ca"
+              patient:
+                type: object
+                description: Información del paciente para el expediente.
+                properties:
+                  names:
+                    type: string
+                    description: Nombre del paciente (editable).
+                    example: "Juan"
+                  lastnames:
+                    type: string
+                    description: Apellidos del paciente (editable).
+                    example: "Pérez García"
+                  fields:
+                    type: array
+                    description: Lista de campos adicionales del paciente.
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Nombre del campo.
+                          example: "Fecha de nacimiento"
+                        value:
+                          type: string
+                          description: Valor seleccionado o ingresado para este campo (editable).
+                          example: "2024-10-13T14:30:00Z"
+            required:
+              - recordId
+              - doctorId
+              - patient
+    responses:
+      '200':
+        description: Expediente editado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                  example: "Record updated successfully"
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '403':
+        description: No se tiene permisos para editar el expediente.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: Doctor o plantilla de paciente no encontrada.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '405':
+        description: No se puede editar. Los valores de ciertos campos no corresponden con el tipo esperado (TEXT, NUMBER, FLOAT, CHOICE).
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error interno del servidor.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+  delete:
+    tags:
+      - Operaciones de expedientes
+    summary: Eliminar un expediente
+    description: Permite a los usuarios eliminar un expediente existente SOLO SI este no contiene archivos dentro de sí.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              recordId:
+                type: string
+                description: ID del expediente a eliminar.
+                example: "60d0fe4f5311236168a109cc"
+              doctorId:
+                type: string
+                description: ID del doctor asociado al expediente.
+                example: "60d0fe4f5311236168a109ca"
+            required:
+              - recordId
+              - doctorId
+    responses:
+      '200':
+        description: Expediente eliminado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                  example: "Expediente eliminado exitosamente."
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '403':
+        description: No se tiene permisos para eliminar el expediente.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: Doctor o Expediente no encontrado.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '409':
+        description: No se puede eliminar expediente porque no esta vacio, todavía contiene archivos asociados.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error interno del servidor.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+  get:
+    tags:
+      - Operaciones de expedientes
+    summary: Obtener un expediente
+    description: Permite a los usuarios obtener la información de un expediente en especifico.
+    parameters:
+      - in: query
+        name: recordId
+        required: true
+        description: ID del expediente a obtener.
+        schema:
+          type: string
+          example: "60d0fe4f5311236168a109cc"
+      - in: query
+        name: doctorId
+        required: true
+        description: ID del doctor asociado al expediente.
+        schema:
+          type: string
+          example: "60d0fe4f5311236168a109ca"
+    responses:
+      '200':
+        description: Expediente obtenido exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                  example: "Operation success!"
+                recordId:
+                  type: string
+                  description: ID del expediente.
+                  example: "60d0fe4f5311236168a109cc"
+                templateId:
+                  type: string
+                  description: ID de la plantilla que sigue el expediente.
+                  example: "60d0fe4f5311236168a109cc"
+                categories:
+                  type: array
+                  items:
+                    type: string
+                    example: 
+                      - "test medicos"
+                      - "consultas"
+                createdAt:
+                  type: string
+                  description: Date where this record was created.
+                patient:
+                  type: object
+                  description: Información del paciente asociado al expediente.
+                  properties:
+                    names:
+                      type: string
+                      description: Nombre del paciente.
+                      example: "Juan"
+                    lastnames:
+                      type: string
+                      description: Apellidos del paciente.
+                      example: "Pérez García"
+                    fields:
+                      type: array
+                      description: Lista de campos adicionales del paciente.
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            description: Nombre del campo.
+                            example: "Fecha de nacimiento"
+                          type:
+                            type: string
+                            description: Tipo del campo, puede ser uno de ['SHORT_TEXT', 'TEXT', 'DATE', 'NUMBER', 'FLOAT', 'CHOICE'].
+                            example: "DATE"
+                          options:
+                            type: array
+                            description: Opciones para los campos de tipo 'CHOICE', si corresponde.
+                            items:
+                              type: string
+                            example:
+                              - "Opción 1"
+                              - "Opción 2"
+                          value:
+                            type: string
+                            description: Valor seleccionado o ingresado para este campo.
+                            example: "2024-09-01"
+                          required:
+                            type: boolean
+                            description: Indica si el campo es obligatorio.
+                            example: true
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '403':
+        description: No se tiene permisos para obtener el expediente.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: Expediente o doctor no encontrados.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error interno del servidor.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+searchRecords:
+  get:
+    tags:
+      - Operaciones de expedientes
+    summary: Listar campos posibles
+    description: |
+      La DB tiene expedientes que siguen variedad de plantillas. Este endpoint permite conocer todos los posibles campos bajo los que se pueden filtrar y ordenar expedientes. Tomando en cuenta todos los campos existentes entre la variedad de expedientes.
+    parameters:
+      - in: query
+        name: doctorId
+        required: true
+        description: Doctor del que se quiere saber los campos.
+        schema:
+          type: string
+          example: "60d0fe4f5311236168a109ca"
+    responses:
+      '200':
+        description: Lista de expedientes obtenida exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                fields:
+                  type: array
+                  description: todos los campos bajo los que se puede filtrar y ordenar.
+                  items:
+                    type: object
+                    properties:
+                      name: 
+                        type: string
+                        example: "Age"
+                      type: 
+                        type: string
+                        example: "NUMBER"
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: Expediente o doctor no encontrados.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error interno del servidor.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+  post:
+    tags:
+      - Operaciones de expedientes
+    summary: Buscar y filtrar expedientes
+    description: |
+      Permite a los usuarios listar todos los expedientes asociados a un doctor específico, con soporte para filtros, paginación y ordenamiento.
+      
+      Estos son los filtros y modos de ordenamiento existentes para cada tipo de dato:
+
+      SHORT_TEXT & TEXT
+        - filtros
+          - **contains**: 1 input. Ej: ["enmedio"]
+          - **starts_with**: 1 input. Ej: ["hola"]
+          - **ends_with**: 1 input. Ej: ["adios"]
+        - ordenamiento:
+          - **asc**: A - Z - expedientes sin atributo
+          - **desc**: expedientes sin atributo - Z - A
+
+      DATE: 
+        - Nota: Datos deben estar en formato ISO8601. 
+        - filtros
+          - **After**: 1 input. Ej: ['2024-10-13T14:30:00Z']
+          - **before**: 1 input. Ej: ['2024-10-13T14:30:00Z']
+          - **between**: 2 inputs. Ej : ['2024-10-13T14:30:00Z', '2024-15-13T14:30:00Z']
+        - ordenamiento:
+          - **asc**: mas antiguo - mas reciente - expedientes sin atributo
+          - **desc**: expedientes sin atributo - mas reciente - mas antiguo
+
+      NUMBER & FLOAT
+        - filtros
+          - **less_than**: 1 input . Ej: [13]
+          - **equal_than**: 1 input Ej: [11]
+          - **greater_than**: 1 input.  Ej: [52]
+        - ordenamiento:
+          - **asc**: menor valor - mayor valor - expedientes sin atributo
+          - **desc**: mayor valor - menor valor - expedientes sin atributo
+
+      CHOICE
+        - filtros
+          - **is**: 1 input. Ej ["opcion1"]
+          - **is_not**: 1 input. Ej: ["opcion2"]
+          - **is_not_empty**: 0 inputs. Ej : []
+        - ordenamiento:
+          - **asc**: A - Z - expedientes sin atributo
+          - **desc**: expedientes sin atributo - Z - A
+    
+      Por ultimo, para el filtrado es necesario especificar el campo `logicGate`, que se refiere a como se van a aplicar los filtros. Por ejemplo, si se enviansen los filtros:
+      ```
+      [
+        { name: "field1", logicGate: "and"},
+        { name: "field2", logicGate: "or"},
+        { name: "field3", logicGate: "or"},
+        { name: "field4", logicGate: "and"},
+      ]
+      ```
+      Se traduciria en un query como:
+      ```
+        field1 AND (field2 OR (field3 OR (field4))
+      ```
+      Darse cuenta como el ultimo `logicGate AND` no se toma en cuenta, porque ya no hay otro filtro con que concatenarlo.
+
+
+      Nota: Este es un ejemplo simplicado, obviamente falta enviar `value` y `type`.
+
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              doctorId:
+                type: string
+                description: ID del doctor asociado a los expedientes.
+                example: "60d0fe4f5311236168a109ca"
+              limit:
+                type: integer
+                description: Cantidad máxima de items por pagina.
+                example: 10
+              page:
+                type: integer
+                description: Página de la que listar expedientes.
+                example: 0
+              fields:
+                type: array
+                description: Ya que devolver la info de todos los campos de los expedientes se puede hacer muy pesado. En esta lista se solicita los campos que hay que devolver. Para saber mas de un expediente usar GET /records/
+                items:
+                  type: object
+                  properties:
+                    name: 
+                      type: string
+                      example: "nombres"
+                    type: 
+                      type: string
+                      example: "SHORT_TEXT"
+              sorts:
+                type: array
+                description: Criterios de ordenamiento para los expedientes.
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nombre del campo del paciente por el cual ordenar.
+                      example: "Age"
+                    type: 
+                      type: string
+                      example: "SHORT_TEXT"
+                    mode:
+                      type: string
+                      description: Modo de ordenamiento, ya sea 'asc' para ascendente o 'desc' para descendente. Por defecto los expedientes QUE NO TENGAN el campo por el que ordenar, se colocarán de último en modo 'desc', y primero en modo 'asc'
+                      example: "asc"
+              filters:
+                type: array
+                description: Filtros a aplicar sobre los expedientes.
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nombre del campo por el que filtrar.
+                      example: "Birthday"
+                    type: 
+                      type: string
+                      example: "NUMBER"
+                    operation:
+                      type: string
+                      description: Tipo de operación del filtro, puede ser uno de ['contains', 'starts_with', 'ends_with', 'greater_than', 'less_than', 'equal_than', 'is', 'is_not', 'is_not_empty', 'after', 'before', 'between'].
+                      example: "between"
+                    values:
+                      type: array
+                      description: Valores para el filtro aplicado. La cantidad de items dependerá del tipo de 'operation', para 'operation' que no redivan values, enviar el array vacio.
+                      example: ['1/2/2024', '23/3/2/2023']
+                    logicGate:
+                      type: string
+                      description: Operador lógico a aplicar entre filtros (and, or), se aplicara al filtro que suceda a este.
+                      example: "and"
+    responses:
+      '200':
+        description: Lista de expedientes obtenida exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                records:
+                  type: array
+                  description: Lista de expedientes.
+                  items:
+                    type: object
+                    properties:
+                      recordId:
+                        type: string
+                        description: ID del expediente.
+                        example: "60d0fe4f5311236168a109cc"
+                      templateId:
+                        type: string
+                        description: ID de la plantilla que sigue el expediente.
+                        example: "60d0fe4f5311236168a109cc"
+                      createdAt:
+                        type: string
+                        description: Fecha de creacion del expediente
+                        example: "2024/09/01"
+                      patient:
+                        type: object
+                        description: Información del paciente asociado al expediente.
+                        properties:
+                          names:
+                            type: string
+                            description: Nombre del paciente.
+                            example: "Juan"
+                          lastNames:
+                            type: string
+                            description: Apellidos del paciente.
+                            example: "Pérez García"
+                          fields:
+                            type: array
+                            description: Lista de los list especificados en la request.
+                            items:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                  description: Nombre del campo.
+                                  example: "Fecha de nacimiento"
+                                type:
+                                  type: string
+                                  description: Tipo del campo, puede ser uno de ['SHORT_TEXT', 'TEXT', 'DATE', 'NUMBER', 'FLOAT', 'CHOICE'].
+                                  example: "DATE"
+                                options:
+                                  type: array
+                                  description: Opciones para los campos de tipo 'CHOICE', si corresponde.
+                                  items:
+                                    type: string
+                                  example:
+                                    - "Casado"
+                                    - "Soltero"
+                                value:
+                                  type: string
+                                  description: Valor seleccionado o ingresado para este campo.
+                                  example: "2024-09-01"
+                                required:
+                                  type: boolean
+                                  description: Indica si el campo es obligatorio.
+                                  example: true
+                total:
+                  type: integer
+                  description: Número total de expedientes que coinciden con los filtros.
+                  example: 25
+      '400':
+        description: Faltan campos o son inválidos en el cuerpo de la solicitud.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Missing Fields."
+      '404':
+        description: Doctor no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Doctor not found."
+      '405':
+        description: Los valores de ciertos campos no corresponden con el tipo esperado (TEXT, NUMBER, FLOAT, CHOICE)
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Records not found"
+      '500':
+        description: Error interno del servidor.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Error al listar los expedientes debido a invalido value."
+
+components:
+  schemas:
+    authHeaders:
+      - in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        description: JWT Token necesario para verificar la autenticidad del doctor.
+    ErrorResponse:
+      type: object
+      properties:
+        status: 
+          type: integer
+        message: 
+          type: string

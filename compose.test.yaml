@@ -1,0 +1,55 @@
+name: therapisttrack-backend-test
+
+services:
+  database:
+    image: therapisttrackapp/tt-db-dev:latest
+    ports:
+      - '${DB_PORT}:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: '${DB_ADMIN_USER}'
+      MONGO_INITDB_ROOT_PASSWORD: '${DB_ADMIN_PASSWORD}'
+      MONGO_INITDB_DATABASE: '${DB_NAME}'
+      DB_NAME: '$DB_NAME'
+      DB_USER: '$DB_USER'
+      DB_USER_PASSWORD: '$DB_USER_PASSWORD'
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - '${API_PORT}:${API_PORT}'
+    environment:
+      DB_HOST: '${DB_HOST}'
+      DB_NAME: '${DB_NAME}'
+      DB_USER: '${DB_USER}'
+      DB_USER_PASSWORD: '${DB_USER_PASSWORD}'
+      DB_PORT: '${DB_PORT}'
+      RUNNING_MODE: '${RUNNING_MODE}'
+      JWT_SECRET: '${JWT_SECRET}'
+      API_PORT: '${API_PORT}'
+      DELAY_START: '${DELAY_START}'
+      LOGGING_METHOD: '${LOGGING_METHOD}'
+      LOGGING_FILE_PATH: '${LOGGING_FILE_PATH}'
+      ALLOWED_ORIGINS: '${ALLOWED_ORIGINS}'
+      ALLOWED_CONTENT_TYPES: '${ALLOWED_CONTENT_TYPES}'
+      ALLOWED_METHODS: '${ALLOWED_METHODS}'
+      ALLOWED_HEADERS: '${ALLOWED_HEADERS}'
+      AWS_ACCESS_KEY_ID: '${AWS_ACCESS_KEY_ID}'
+      AWS_SECRET_ACCESS_KEY: '${AWS_SECRET_ACCESS_KEY}'
+      AWS_REGION: '${AWS_REGION}'
+      AWS_BUCKET_NAME: '${AWS_BUCKET_NAME}'
+      AWS_BUCKET_NAME_TEST: '${AWS_BUCKET_NAME_TEST}'
+      AUTH_ISSUER_BASE_URL: '${AUTH_ISSUER_BASE_URL}'
+      AUTH_AUDIENCE: '${AUTH_AUDIENCE}'
+      AUTH_CLIENT_ID: '${AUTH_CLIENT_ID}'
+      AUTH_CLIENT_SECRET: '${AUTH_CLIENT_SECRET}'
+    volumes:
+      - backend_logs:/backend/logs
+
+volumes:
+  mongo_data:
+    driver: local
+  backend_logs:
+    driver: local

@@ -1,0 +1,912 @@
+doctorPatientTemplate:
+  post:
+    tags: 
+      - Plantillas de Paciente/Expediente
+    summary: Crear plantilla de paciente
+    description: Permite a los doctores crear una plantilla de paciente personalizada.
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        description: JWT Token necesario para verificar la autenticidad del doctor.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              doctorId:
+                type: string
+                description: Identificador único del doctor que crea la plantilla.
+                example: '60d5ec49d8a0c540d8d6d8b5'
+              name:
+                type: string
+                description: Name of the template.
+                example: 'Plantilla2024'
+              categories:
+                type: array
+                description: Lista de posibles categorias.
+                example: 
+                  - "consultas"
+                  - "tests"
+                items:
+                  type: string
+              fields:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    type:
+                      type: string
+                    options:
+                      type: array
+                      items:
+                        type: string
+                    required:
+                      type: boolean
+                    description:
+                      type: string
+                      description: Por ahora solo envia una string vacio.
+    responses:
+      '200':
+        description: Plantilla de paciente creada exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                data:
+                  type: object
+                  properties:
+                    doctorId:
+                      type: string
+                    patientTemplateId:
+                      type: string
+      '400':
+        description: 'Faltan campos o son inválidos en el cuerpo de la solicitud.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '404':
+        description: Doctor no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '406':
+        description: Nombre de la plantilla ya esta en uso.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '500':
+        description: 'Error interno del servidor'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+
+  patch:
+    tags: 
+      - Plantillas de Paciente/Expediente
+    summary: Renombrar plantilla de paciente
+    description: Permite a los doctores renombrar una plantilla de paciente personalizada.
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        description: JWT Token necesario para verificar la autenticidad del doctor.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              doctorId:
+                type: string
+                description: Identificador único del doctor que crea la plantilla.
+                example: '60d5ec49d8a0c540d8d6d8b5'
+              templateId:
+                type: string
+                description: Identificador único de la plantilla a editar.
+                example: '60d5ec49d8a0c540d8d6d8b5'
+              name:
+                type: string
+                description: Nuevo nombre de la plantilla.
+                example: 'Plantilla2024'
+    responses:
+      '200':
+        description: Plantilla de renombrada creada exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                data:
+                  type: object
+                  properties:
+                    doctorId:
+                      type: string
+                    patientTemplateId:
+                      type: string
+      '400':
+        description: 'Faltan campos o son inválidos en el cuerpo de la solicitud.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '403':
+        description: 'Doctor no es dueño de esta plantilla.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '404':
+        description: Doctor no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '406':
+        description: Nombre de plantilla ya en uso, escoger uno diferente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '500':
+        description: 'Error interno del servidor'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+
+  delete:
+    tags: 
+      - Plantillas de Paciente/Expediente
+    summary: Eliminar plantilla de paciente
+    description: Permite a los doctores eliminar plantillas. SOLO si no hay expedientes que dependa de ella.
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        description: JWT Token necesario para verificar la autenticidad del doctor.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              doctorId:
+                type: string
+                description: Identificador único del doctor que crea la plantilla.
+                example: '60d5ec49d8a0c540d8d6d8b5'
+              templateId:
+                type: string
+                description: Identificador único del doctor que crea la plantilla.
+                example: '60d5ec49d8a0c540d8d6d8b5'
+    responses:
+      '200':
+        description: Plantilla eliminada exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '400':
+        description: 'Faltan campos o son inválidos en el cuerpo de la solicitud.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '403':
+        description: 'Doctor no es dueño de esta plantilla.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '404':
+        description: Doctor no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '409':
+        description: 'No se puede eliminar plantilla, hay expedientes que dependen de ella'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '500':
+        description: 'Error interno del servidor'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+
+  get:
+    tags: 
+      - Plantillas de Paciente/Expediente
+    summary: Obtener plantilla por su ID
+    description: Permite obtener la información más reciente de un plantilla.
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        description: JWT Token necesario para verificar la autenticidad del doctor.
+      - in: query
+        name: doctorId
+        required: true
+        schema:
+          type: string
+          description: Identificador único del doctor que crea la plantilla.
+          example: '60d5ec49d8a0c540d8d6d8b5'
+      - in: query
+        name: templateId
+        required: true
+        schema:
+          type: string
+          description: Template's ID
+          example: 'Plantilla2024'
+    responses:
+      '200':
+        description: Plantilla de paciente creada exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                name:
+                  type: string
+                  description: Name of the template.
+                  example: 'Plantilla2024'
+                categories:
+                  type: array
+                  description: Lista de posibles categorias.
+                  example: 
+                    - "consultas"
+                    - "tests"
+                  items:
+                    type: string
+                fields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      type:
+                        type: string
+                      options:
+                        type: array
+                        items:
+                          type: string
+                      value:
+                        type: string
+                      required:
+                        type: boolean
+                      description:
+                        type: string
+      '400':
+        description: 'Solicitud incorrecta: Faltan campos o son inválidos en el cuerpo de la solicitud.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '403':
+        description: No autorizado. Doctor no es dueño de la plantilla.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '404':
+        description: Doctor no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '500':
+        description: 'Error interno del servidor'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+
+doctorPatientTemplateList:
+  get:
+    tags: 
+      - Plantillas de Paciente/Expediente
+    summary: Obtener lista de plantillas paciente.
+    description: Permite obtener las plantillas de un doctor.
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        description: JWT Token necesario para verificar la autenticidad del doctor.
+      - in: query
+        name: doctorId
+        required: true
+        schema:
+          type: string
+          description: Identificador único del doctor que crea la plantilla.
+          example: '60d5ec49d8a0c540d8d6d8b5'
+    responses:
+      '200':
+        description: Plantilla encontradas con exito.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                templates:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      templateId:
+                        type: string
+                        description: Identificador único del doctor que crea la plantilla.
+                        example: '60d5ec49d8a0c540d8d6d8b5'
+                      name:
+                        type: string
+                        description: Name of the template.
+                        example: 'Plantilla2024'
+                      categories:
+                        type: array
+                        description: Lista de posibles categorias.
+                        example: 
+                          - "consultas"
+                          - "tests"
+                        items:
+                          type: string
+                      fields:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            type:
+                              type: string
+                            options:
+                              type: array
+                              items:
+                                type: string
+                            value:
+                              type: string
+                            required:
+                              type: boolean
+                            description:
+                              type: string
+                total:
+                  type: integer
+                  description: total count of templates.
+                  example: 25
+      '400':
+        description: 'Solicitud incorrecta: Faltan campos o son inválidos en el cuerpo de la solicitud.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '404':
+        description: Doctor no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '500':
+        description: 'Error interno del servidor'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+    
+                  
+doctorPatientTemplateFields:
+  post:
+    tags: 
+      - Plantillas de Paciente/Expediente
+    summary: Agregar campo a la plantilla de paciente
+    description: "Permite a los doctores añadir un nuevo campo a la plantilla de paciente existente. NOTA: No se permiten crear campos con `required: true` si la plantilla ya esta en uso. Esta operacion afectara a todos los expedientes."
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        description: JWT Token necesario para la autenticación.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              doctorId:
+                type: string
+                description: Identificador único del doctor.
+                example: '60d5ec49d8a0c540d8d6d8b5'
+              templateId:
+                type: string
+                description: ID de la plantilla a modificar.
+                example: '42038caasdlj3234j255k'
+              field:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Nombre del campo a añadir.
+                    example: 'Allergies'
+                  type:
+                    type: string
+                    description: Tipo de dato del campo (ej., TEXTO).
+                    example: 'TEXT'
+                  options:
+                    type: array
+                    items:
+                      type: string
+                  required:
+                    type: boolean
+                    description: Indica si el campo es obligatorio.
+                    example: false
+                  description:
+                    type: string
+                    description: Descripción del campo.
+                    example: "Patient's known allergies"
+    responses:
+      '200':
+        description: Campo añadido a la plantilla de paciente exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                data:
+                  type: object
+                  properties:
+                    doctorId: 
+                      type: string
+                    patientTemplateId:
+                      type: string
+      '400':
+        description: 'Faltan campos o son inválidos en el cuerpo de la solicitud.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '403':
+        description: 'Doctor no es dueño de la plantilla.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '404':
+        description: Doctor no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '406':
+        description: Campo ya existente en la plantilla.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '500':
+        description: 'Error interno del servidor'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+  put:
+    tags: 
+      - Plantillas de Paciente/Expediente
+    summary: Editar campos de la plantilla de paciente
+    description: "Permite a los doctores editar campos existentes en la plantilla de paciente. NOTA: No se puede hacer un campo `required` si la plantilla ya esta en uso. Esta operacion afectara a todas los expedientes"
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        description: JWT Token necesario para la autenticación.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              doctorId:
+                type: string
+                description: Identificador único del doctor.
+                example: '60d5ec49d8a0c540d8d6d8b5'
+              templateId:
+                type: string
+                description: ID de la plantilla a modificar.
+                example: '42038caasdlj3234j255k'
+              oldFieldName:
+                type: string
+                description: Nombre del campo del que se quiere cambiar datos.
+                example: 'Edad'
+              fieldData:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Identificador único del campo.
+                  options:
+                    type: array
+                    items:
+                      type: string
+                    description: Si el campo es `required` y se eliminan opciones que estan siendo usadas, las plantillas que lo usen agarran el primer atributo de la lista.
+                  required:
+                    type: boolean
+                    description: Indica si el campo es obligatorio.
+                  description:
+                    type: string
+                    description: Descripción del campo.
+    responses:
+      '200':
+        description: Campo editado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                data:
+                  type: object
+                  properties:
+                    doctorId: 
+                      type: string
+                    patientTemplateId:
+                      type: string
+      '400':
+        description: 'Faltan campos o son inválidos en el cuerpo de la solicitud.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '403':
+        description: 'Doctor no es dueño de la plantilla.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '404':
+        description: Doctor no encontrado o el campo especificado no se encuentra en la plantilla.
+
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '406':
+        description: La edicion no se puede llevar a cabo. Puede pasar por editar el nombre del campo a uno que ya existe, o pasar un atributo a `required` .entre otros.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '500':
+        description: 'Error interno del servidor'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+  delete:
+    tags: 
+      - Plantillas de Paciente/Expediente
+    summary: Eliminar un campo de la plantilla de paciente
+    description: Elimina campos de una plantilla y de todos los expedientes que la implementan de forma permanente.
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        description: JWT Token necesario para la autenticación.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              doctorId:
+                type: string
+                description: Identificador único del doctor que realiza la eliminación.
+                example: '60d5ec49d8a0c540d8d6d8b5'
+              templateId:
+                type: string
+                description: ID de la plantilla a modificar.
+                example: '42038caasdlj3234j255k'
+              name:
+                type: string
+                description: Nombre del campo a eliminar.
+                example: 'Edad'
+    responses:
+      '200':
+        description: Campo de la plantilla de paciente eliminado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                data:
+                  type: object
+                  properties:
+                    doctorId:
+                      type: string
+                    patientTemplateId:
+                      type: string
+      '400':
+        description: 'Faltan campos o son inválidos en el cuerpo de la solicitud.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '403':
+        description: Doctor no es dueño de la plantailla.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '404':
+        description: Doctor no encontrado o el campo especificado no se encuentra en la plantilla de paciente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+      '500':
+        description: 'Error interno del servidor: No se puede eliminar el campo de la plantilla de paciente.'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        status: 
+          type: integer
+        message: 
+          type: string
+    FieldsSchema:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        required:
+          type: boolean
+        description:
+          type: string
+          description: Por ahora solo envia una string vacio.

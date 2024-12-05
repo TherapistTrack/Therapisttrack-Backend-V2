@@ -1,0 +1,22 @@
+name: therapisttrack-backend
+
+services:
+  backend:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - '${API_PORT}:${API_PORT}'
+    environment:
+      DB_HOST: '${DB_HOST}'
+      DB_NAME: '${DB_NAME}'
+      DB_USER: '${DB_USER}'
+      DB_USER_PASSWORD: '${DB_USER_PASSWORD}'
+      DB_PORT: '${DB_PORT}'
+      JWT_SECRET: '${JWT_SECRET}'
+      API_PORT: '${API_PORT}'
+    volumes:
+      - node_modules:/backend/node_modules
+
+volumes:
+  node_modules:
+    driver: local

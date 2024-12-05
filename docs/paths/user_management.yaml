@@ -1,0 +1,349 @@
+userRegister:
+  post:
+    tags:
+      - Gestión de usuarios
+    summary: Crear usuario
+    description: Permite a los administradores crear un nuevo usuario en el sistema.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              names:
+                type: string
+              lastNames:
+                type: string
+              phones:
+                type: array
+                items:
+                  type: string
+              rol:
+                type: string
+                description: Puede ser "Doctor" o "Assistant" es case sensitive.
+              mails:
+                type: array
+                items:
+                  type: string
+              roleDependentInfo: 
+                type: object
+                description: Info especifica del rol (Doctor, Asistente) SOLO enviar campos dependiendo del rol.
+                properties:
+                  collegiateNumber:
+                    type: string
+                    description: Campo especifico de Doctor
+                  specialty:
+                    type: string
+                    description: Campo especifico de doctor
+                  startDate:
+                    type: string
+                    description: Campo especifico de asistente
+                  endDate:
+                    type: string
+                    description: Campo especifico de asistente
+                  DPI:
+                    type: string
+                    description: Campo especifico de asistente
+    responses:
+      '201':
+        description: Usuario creado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: 
+                  type: integer
+                message:: 
+                  type: string
+                userId:
+                  type: string
+                roleId:
+                  type: string
+                  description: Is the id in the collection for doctor or assistant
+      '400':
+        description: Error al crear el usuario.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+userDelete:
+  delete:
+    tags:
+      - Gestión de usuarios
+    summary: Eliminar usuario
+    description: Cambia el estado de un usuario a inactivo en lugar de eliminar completamente sus datos.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: ID del User a eliminar/inhabilitar.
+    responses:
+      '200':
+        description: Usuario desactivado exitosamente.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '400':
+        description: Usuario no encontrado.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+userUpdate:
+  put:
+    tags:
+      - Gestión de usuarios
+    summary: Actualizar información de usuario
+    description: Permite a los administradores actualizar la información existente de un usuario. NO ACTUALIZA LOS CAMPOS "id" "rol"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id: 
+                type: string
+                description: ID del usuario a editar
+              names:
+                type: string
+              lastNames:
+                type: string
+              phones:
+                type: array
+                items:
+                  type: string
+              rol:
+                type: string
+                description: Puede ser "Doctor" o "Assistant" es case sensitive.
+              mails:
+                type: array
+                items:
+                  type: string
+              roleDependentInfo: 
+                type: object
+                description: Info especifica del rol (Doctor, Asistente) SOLO enviar campos dependiendo del rol.
+                properties:
+                  collegiateNumber:
+                    type: string
+                    description: Campo especifico de Doctor
+                  specialty:
+                    type: string
+                    description: Campo especifico de doctor
+                  startDate:
+                    type: string
+                    description: Campo especifico de asistente
+                  endDate:
+                    type: string
+                    description: Campo especifico de asistente
+                  DPI:
+                    type: string
+                    description: Campo especifico de asistente
+    responses:
+      '200':
+        description: Información de usuario actualizada exitosamente.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '400':
+        description: Usuario no encontrado.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+userList:
+  get:
+    tags:
+      - Gestión de usuarios
+    summary: Listar usuarios
+    description: Devuelve una lista de los usuario activos en la aplicacion
+
+    responses:
+      '200':
+        description: Lista de usuarios recuperada exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: 
+                  type: string
+                users: 
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id: 
+                        type: string
+                      names: 
+                        type: string
+                      lastNames: 
+                        type: string
+
+userGetByID:
+  get:
+    tags:
+      - Gestión de usuarios
+    summary: Usuario por ID
+    description: Devuelve la info de un usuario en base a su ID
+    responses:
+      '200':
+        description: Lista de usuarios recuperada exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                message:
+                  type: string
+                data: 
+                  type: object
+                  properties:
+                    id: 
+                      type: string
+                      description: ID del usuario a editar
+                    names:
+                      type: string
+                    lastNames:
+                      type: string
+                    phones:
+                      type: array
+                      items:
+                        type: string
+                    rol:
+                      type: string
+                      description: Puede ser "Doctor" o "Assistant" es case sensitive.
+                    mails:
+                      type: array
+                      items:
+                        type: string
+                    roleDependentInfo: 
+                      type: object
+                      description: Info especifica del rol (Doctor, Asistente) SOLO enviar campos dependiendo del rol.
+                      properties:
+                        id:
+                          type: string
+                          description: doctorId or assistantId of the user
+                        collegiateNumber:
+                          type: string
+                          description: Campo especifico de Doctor
+                        specialty:
+                          type: string
+                          description: Campo especifico de doctor
+                        startDate:
+                          type: string
+                          description: Campo especifico de asistente
+                        endDate:
+                          type: string
+                          description: Campo especifico de asistente
+                        DPI:
+                          type: string
+                          description: Campo especifico de asistente
+      '400':
+        description: Usuario no encontrado.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+userMe:
+  post:
+    tags:
+      - Gestión de usuarios
+    summary: Info de Mi usuario
+    description: Devuelve la info del usuario que esta haciendo la request.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: ID del usuario del que saber info.
+    responses:
+      '200':
+        description: Lista de usuarios recuperada exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: 
+                  type: integer
+                message: 
+                  type: string
+                data: 
+                  type: object
+                  properties:
+                    id: 
+                      type: string
+                      description: ID del usuario a editar
+                    names:
+                      type: string
+                    lastNames:
+                      type: string
+                    phones:
+                      type: array
+                      items:
+                        type: string
+                    rol:
+                      type: string
+                      description: Puede ser "Doctor" o "Assistant" es case sensitive.
+                    mails:
+                      type: array
+                      items:
+                        type: string
+                    roleDependentInfo: 
+                      type: object
+                      description: Info especifica del rol (Doctor, Asistente) SOLO enviar campos dependiendo del rol.
+                      properties:
+                        id:
+                          type: string
+                          description: doctorId or assistantId of the user
+                        collegiateNumber:
+                          type: string
+                          description: Campo especifico de Doctor
+                        specialty:
+                          type: string
+                          description: Campo especifico de doctor
+                        startDate:
+                          type: string
+                          description: Campo especifico de asistente
+                        endDate:
+                          type: string
+                          description: Campo especifico de asistente
+                        DPI:
+                          type: string
+                          description: Campo especifico de asistente
+      '400':
+        description: Usuario no encontrado.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+                          
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        status: 
+          type: integer
+        message: 
+          type: string

@@ -1,0 +1,80 @@
+name: pipeline
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+
+jobs:
+  test:
+    name: test code
+    runs-on: ubuntu-latest
+    env:
+      DB_ADMIN_USER: root
+      DB_ADMIN_PASSWORD: 1234
+      DB_HOST: database
+      DB_NAME: therapisttrack
+      DB_USER: adminstrator
+      DB_USER_PASSWORD: 1234
+      DB_PORT: 27017
+      RUNNING_MODE: 'TEST'
+      DELAY_START: 8000
+      API_PORT: 3001
+      JWT_SECRET: 'LocalPassword'
+      ALLOWED_ORIGINS: 'http://localhost'
+      ALLOWED_CONTENT_TYPES: 'application/json'
+      ALLOWED_METHODS: 'GET,POST,PUT,DELETE,OPTIONS'
+      ALLOWED_HEADERS: 'Content-Type,Authorization'
+      LOGGING_METHOD: 'CONSOLE'
+      LOGGING_FILE_PATH: './logs'
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+      AWS_BUCKET_NAME_TEST: ${{ secrets.AWS_BUCKET_NAME_TEST }}
+      AUTH_CLIENT_ID: ${{ secrets.AUTH_CLIENT_ID }}
+      AUTH_CLIENT_SECRET: ${{ secrets.AUTH_CLIENT_SECRET }}
+      AUTH_AUDIENCE: ${{ secrets.AUTH_AUDIENCE }}
+      AUTH_ISSUER_BASE_URL: ${{ secrets.AUTH_ISSUER_BASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Start containers
+        run: docker compose -f "compose.test.yaml" up -d --build
+
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.3.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Wait for the containers to be ready
+        run: |
+          attempt_counter=0
+          max_attempts=4
+
+          while ! curl -s http://localhost:3001/health > /dev/null; do
+            if [ ${attempt_counter} -eq ${max_attempts} ]; then
+              echo "Max attempts reached. Exiting..."
+              exit 1
+            fi
+
+            attempt_counter=$((attempt_counter+1))
+            echo "Waiting for server... (Attempt: $attempt_counter)"
+            sleep 5
+          done
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Stop containers
+        if: always()
+        run: docker compose -f "compose.test.yaml" down -v

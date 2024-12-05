@@ -1,0 +1,38 @@
+name: pipeline
+on:
+  push:
+    branches:
+      - 'dev'
+
+jobs:
+  deploy:
+    name: build && push image to docker hub
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: 'dev'
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: setup docker buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: docker login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: build and push database
+        id: build-push-database
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm64/v8
+          push: true
+          tags: |
+            therapisttrackapp/tt-backend-dev:latest
+            therapisttrackapp/tt-backend-dev:${{ github.sha }}

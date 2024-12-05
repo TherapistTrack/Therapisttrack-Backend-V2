@@ -1,0 +1,63 @@
+{
+  "name": "tt-backend-v2",
+  "version": "1.0.0",
+  "description": "thearpisttrack API v2",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "go build -o target/main main.go",
+    "run": "npm run build && target/main",
+    "test": "jest --verbose",
+
+    "lint": "npx eslint '**/*.{js,jsx,ts,tsx,vue}'",
+    "lint:fix": "npm run lint -- --fix",
+    "prettier": "prettier '**/*.{js,jsx,ts,tsx}' --check",
+    "prettier:fix": "npm run prettier -- --write",
+    "format": "npm run prettier:fix && npm run lint:fix",
+
+    "prepare": "husky",
+
+    "docs": "redocly preview-docs ./docs/api-spec.yaml"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/TherapistTrack/Therapisttrack-Backend-V2"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "form-data": "^4.0.1",
+    "husky": "^9.1.7",
+    "yup": "^1.5.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@eslint/js": "^9.16.0",
+    "@redocly/cli": "^1.25.15",
+    "@types/jest": "^29.5.14",
+    "eslint": "^9.16.0",
+    "globals": "^15.13.0",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.4.2"
+  },
+
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,vue}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.go" : "go fmt"
+  },
+
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
