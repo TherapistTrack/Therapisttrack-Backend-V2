@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "go build -o target/main main.go",
-    "run": "npm run build && target/main",
+    "start": "npm run build && target/main",
     "test": "jest --verbose",
 
     "lint": "npx eslint '**/*.{js,jsx,ts,tsx,vue}'",
@@ -51,8 +51,7 @@
     "*.{ts,tsx,js,jsx,vue}": [
       "prettier --write",
       "eslint --fix"
-    ],
-    "*.go" : "go fmt"
+    ]
   },
 
   "config": {
