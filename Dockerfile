@@ -11,7 +11,7 @@ RUN go mod download && go mod verify
 COPY . .
 
 # Build executables
-RUN go build -v -o /usr/local/bin/app ./...
+RUN go build -v -o target/main main.go
 
 # Set environment variables
 ENV DB_HOST=${DB_HOST}
@@ -26,4 +26,4 @@ ENV LOGGING_METHOD=${LOGGING_METHOD}
 # Expose the port the app runs on
 EXPOSE 3001
 
-CMD [ "/target/main"]
+CMD [ "/backend/target/main"]
