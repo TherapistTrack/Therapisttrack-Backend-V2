@@ -1,12 +1,16 @@
 <h1 align="center">📦 Therapist Track</h1>
 <h3 align="center"> Backend V2 </h3>
 
-Utiliza Go y Chi para proporcionar una API REST que interactúa con una base de datos MongoDB, gestionando autenticación, manejo de archivos y operaciones CRUD para pacientes y médicos.
+Esta nueva version de la API esta escrita en Go, en conjunto con Chi, MongoDB. Usada para el manejo de toda la logica de CRUD de expedientes y archivos.
 
 Estas instrucciones te permitirán obtener una copia del proyecto en funcionamiento en tu máquina local para fines de desarrollo y pruebas.
 
 # Requerimientos
 
+- Go
+  - Chi
+  - Zerolog
+  - Mongo Driver
 - Docker
 - NodeJS
 
@@ -81,9 +85,10 @@ Sigue estos pasos para iniciar el proyecto en tu máquina local:
 
    ```bash
    npm install
+   go install
    ```
 
-3. Copiar el archivo .env.example a .env y ajustar las variables de entorno necesarias.
+3. Crear un archivo `.env` con las variables necesarias.
 
 # 🏃‍♂️ Ejecución
 
@@ -94,7 +99,7 @@ Para ejecutar la aplicación en un entorno de desarrollo, puedes utilizar Node.j
 Para esto es necesario, tener un BD operacional, en algún lado. El host de dicha DB se especifica en el archivo `.env` como se dijo arriba.
 
 ```bash
-npm start
+npm run start
 ```
 
 ## Usando Docker Compose:
@@ -117,17 +122,6 @@ Se cuentan con 2 archivos de `compose`. Pero para propositos de desarrollo te ba
 
 La API permite realizar operaciones autenticadas relacionadas con la gestión de usuarios y pacientes. Las rutas principales incluyen:
 
-### Autenticación
-
-```bash
-POST /api/login
-Body:
-{
-  "username": "ejemplo",
-  "password": "password"
-}
-```
-
 # 📚 Documentación de la API
 
 Esta generada con Redocly, el siguiente comando levantará un página web con la documentación
@@ -140,6 +134,5 @@ Esta documentación proporciona una interfaz para probar todas las rutas disponi
 
 # 🔨 Construido con
 
-- Node.js - El entorno de ejecución para JavaScript.
-- Express - El framework web utilizado.
-- Mongoose - ORM para MongoDB.
+- Go - Lenguaje de la API
+- Node.js - Lenguaje en el que estan escritos los tests.
