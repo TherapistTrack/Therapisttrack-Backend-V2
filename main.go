@@ -1,17 +1,21 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/TherapistTrack/Therapisttrack-Backend-V2/api"
 	mw "github.com/TherapistTrack/Therapisttrack-Backend-V2/api/middlewares"
 	"github.com/TherapistTrack/Therapisttrack-Backend-V2/config"
-	"github.com/TherapistTrack/Therapisttrack-Backend-V2/internal/services/user"
+	"github.com/TherapistTrack/Therapisttrack-Backend-V2/internal/storage/mongo"
 	"github.com/TherapistTrack/Therapisttrack-Backend-V2/pkg"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
+
+// TRANSPORTE
+// NEGOCIOS
+// DATOS
 
 func main() {
 	// Loading env variables from .env file
@@ -19,13 +23,21 @@ func main() {
 	config := config.LoadConfig()
 
 	// Logging
-	pkg.ConfigureLogger(config.LoggingConfig)
+	pkg.ConfigureLogger(&config.LoggingConfig)
 
-	// Services
-	userService := user.NewUserService()
+	// Database Client
+	mongoClient, err := mongo.NewMongoClient(&config.DatabaseConfig)
 
-	// App
-	app := api.NewApi(&userService)
+	defer mongoClient.Close()
+
+	if err != nil {
+		log.Fatal().
+			Str("message", "Could not initialize DB Client").
+			Err(err)
+	}
+
+	// App and Services Configuration
+	app := api.NewApi(mongoClient)
 
 	// Routes
 	r := chi.NewRouter()
@@ -61,5 +73,5 @@ func main() {
 
 	// Start server
 	log.Printf("Starting server on port %s", config.APIPort)
-	log.Fatal(http.ListenAndServe(":"+config.APIPort, r))
+	log.Fatal().Err(http.ListenAndServe(":"+config.APIPort, r))
 }

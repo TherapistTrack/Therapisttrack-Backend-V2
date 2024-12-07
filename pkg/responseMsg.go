@@ -1,6 +1,6 @@
 package pkg
 
-type ResponseMsg string
+type ResponseMsg = string
 
 const (
 	// 200: Success

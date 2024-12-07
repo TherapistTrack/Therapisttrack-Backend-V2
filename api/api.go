@@ -6,30 +6,33 @@ import (
 	"github.com/TherapistTrack/Therapisttrack-Backend-V2/api/handlers/health"
 	userHandlers "github.com/TherapistTrack/Therapisttrack-Backend-V2/api/handlers/user"
 	userServ "github.com/TherapistTrack/Therapisttrack-Backend-V2/internal/services/user"
+	"github.com/TherapistTrack/Therapisttrack-Backend-V2/internal/storage/mongo"
 )
 
 type Api struct {
+	mongoClient *mongo.MongoClient
+
 	// Dependencies
 	userService *userServ.UserService
 
-	// Handlers
+	// Handlers: endpoint functions
 	CheckHealthHandler http.HandlerFunc
 
 	CreateUserHandler http.HandlerFunc
 }
 
 func NewApi(
-	userService *userServ.UserService,
+	mongoClient *mongo.MongoClient,
 ) *Api {
 
-	if userService == nil {
-		panic("userService not initialized")
-	}
+	userService := userServ.NewUserService(mongoClient)
 
 	return &Api{
-		userService: userService,
+		mongoClient: mongoClient,
+		userService: &userService,
 
 		CheckHealthHandler: health.CheckHealthHandler,
-		CreateUserHandler:  userHandlers.NewCreateUserHandler(userService),
+
+		CreateUserHandler: userHandlers.NewCreateUserHandler(&userService),
 	}
 }

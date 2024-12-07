@@ -9,7 +9,7 @@ import (
 )
 
 // ConfigureLogger sets up the zerolog output based on the provided configuration
-func ConfigureLogger(config config.LoggingConfig) {
+func ConfigureLogger(config *config.LoggingConfig) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	switch config.LoggingMethod {
 	case "CONSOLE":
