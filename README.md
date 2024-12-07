@@ -85,7 +85,7 @@ Sigue estos pasos para iniciar el proyecto en tu máquina local:
 
    ```bash
    npm install
-   go install
+   go mod download
    ```
 
 3. Crear un archivo `.env` con las variables necesarias.
