@@ -34,5 +34,5 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm64/v8
           push: true
           tags: |
-            therapisttrackapp/tt-backend-dev:latest
-            therapisttrackapp/tt-backend-dev:${{ github.sha }}
+            therapisttrackapp/tt-backend-dev-v2:latest
+            therapisttrackapp/tt-backend-dev-v2:${{ github.sha }}
