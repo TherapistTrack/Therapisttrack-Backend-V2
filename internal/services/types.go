@@ -1,5 +1,7 @@
 package services
 
+import "time"
+
 type RoleDependentInfo struct {
 	Id               string
 	CollegiateNumber string
@@ -28,4 +30,19 @@ type Record struct {
 	names     string
 	lastNames string
 	fields    []RecordFields
+}
+
+type PatientTemplate struct {
+	Doctor 			string
+	Name 			string
+	Categories		[]string
+	LastUpdate		time.Time
+	Fields			[]PatientFields
+}
+
+type PatientFields struct {
+	Name			string
+	Type			string
+	Options 		[]string
+	Description 	string
 }
