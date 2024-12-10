@@ -1,21 +1,21 @@
 package services
 
 type RoleDependentInfo struct {
-	Id               string
-	CollegiateNumber string
-	Specialty        string
-	StartDate        string
-	EndDate          string
-	DPI              string
+	Id               string `json:"id"`
+	CollegiateNumber string `json:"collegiateNumber,omitempty"`
+	Specialty        string `json:"specialty,omitempty"`
+	StartDate        string `json:"startDate,omitempty"`
+	EndDate          string `json:"endDate,omitempty"`
+	DPI              string `json:"DPI,omitempty" validate:"numeric"`
 }
 
 type User struct {
-	Id                string
-	Names             string
-	LastNames         string
-	Phones            []string
-	Mails             []string
-	Role              string
+	Id                string   `json:"id"`
+	Names             string   `json:"names" validate:"required"`
+	LastNames         string   `json:"lastNames" validate:"required"`
+	Phones            []string `json:"phones" validate:"required"`
+	Mails             []string `json:"mails" validate:"required"`
+	Role              string   `json:"rol" validate:"required,oneof=Doctor Assistant Admin"`
 	RoleDependentInfo RoleDependentInfo
 }
 
