@@ -7,6 +7,7 @@ import (
 	userHandlers "github.com/TherapistTrack/Therapisttrack-Backend-V2/api/handlers/user"
 	userServ "github.com/TherapistTrack/Therapisttrack-Backend-V2/internal/services/user"
 	"github.com/TherapistTrack/Therapisttrack-Backend-V2/internal/storage/mongo"
+	"github.com/go-playground/validator/v10"
 )
 
 type Api struct {
@@ -25,7 +26,9 @@ func NewApi(
 	mongoClient *mongo.MongoClient,
 ) *Api {
 
-	userService := userServ.NewUserService(mongoClient)
+	validate := validator.New(validator.WithRequiredStructEnabled())
+
+	userService := userServ.NewUserService(mongoClient, validate)
 
 	return &Api{
 		mongoClient: mongoClient,
