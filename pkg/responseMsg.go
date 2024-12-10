@@ -7,7 +7,7 @@ const (
 	RequestSuccess ResponseMsg = "Request successful."
 
 	// 400: Missing data on request
-	MissingFields       ResponseMsg = "Missing Fields."
+	MissingFields       ResponseMsg = "Missing Fields or invalid data."
 	ReservedFieldNames  ResponseMsg = "Names as 'Apellidos' and 'Nombres' are reserved."
 	DuplicateFieldNames ResponseMsg = "Field names must be unique."
 	InvalidDoctorID     ResponseMsg = "doctorId is invalid."
