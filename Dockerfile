@@ -1,4 +1,4 @@
-FROM golang:1.23
+FROM golang:1.23.4-alpine3.21
 
 # Set working directory inside the container
 WORKDIR /backend
