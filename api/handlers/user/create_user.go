@@ -13,7 +13,7 @@ import (
 )
 
 type createUserRequest struct {
-	Id                string   `json:"id"`
+	Id                string   `json:"id" validate:"required"`
 	Names             string   `json:"names" validate:"required"`
 	LastNames         string   `json:"lastNames" validate:"required"`
 	Phones            []string `json:"phones" validate:"required"`
@@ -68,7 +68,7 @@ func NewCreateUserHandler(s *user.UserService) http.HandlerFunc {
 		if len(failedJSONValidation) > 0 {
 			body, _ := json.Marshal(data)
 			md.LogErrorRequest(fmt.Errorf(failedJSONValidation), r, pkg.MissingFields.StatusCode, &body)
-			http.Error(w, fmt.Sprintf(`{"message": "%s"}`, pkg.MissingFields), pkg.MissingFields.StatusCode)
+			http.Error(w, fmt.Sprintf(`{"message": "%s"}`, pkg.MissingFields.Message), pkg.MissingFields.StatusCode)
 			return
 		}
 
@@ -91,8 +91,9 @@ func NewCreateUserHandler(s *user.UserService) http.HandlerFunc {
 		userId, roleId, err := s.CreateUser(r.Context(), &user)
 		if err != nil {
 			body, _ := json.Marshal(data)
+			serviceError := err.(*pkg.ResponseMsg)
 			md.LogErrorRequest(err, r, http.StatusBadRequest, &body)
-			http.Error(w, fmt.Sprintf(`{"message": "%s"}`, pkg.MissingFields), http.StatusBadRequest)
+			http.Error(w, fmt.Sprintf(`{"message": "%s"}`, serviceError.Message), serviceError.StatusCode)
 			return
 		}
 
