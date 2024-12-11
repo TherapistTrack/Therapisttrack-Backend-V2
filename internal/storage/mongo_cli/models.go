@@ -1,4 +1,4 @@
-package mongo
+package mongo_cli
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -22,6 +22,7 @@ type DoctorModel struct {
 
 type AssistantModel struct {
 	Id        primitive.ObjectID `bson:"_id"`
+	User      primitive.ObjectID `bson:"user"`
 	StartDate primitive.DateTime `bson:"startDate"`
 	EndDate   primitive.DateTime `bson:"endDate"`
 	DPI       string             `bson:"DPI"`
