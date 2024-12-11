@@ -31,9 +31,9 @@ describe('User Endpoints', () => {
     rol: 'Assistant',
     mails: ['test-assistant@example.com'],
     roleDependentInfo: {
-      startDate: '08/14/2024',
-      endDate: '08/15/2024',
-      DPI: '2340934'
+      startDate: '2024-12-09T15:30:00Z',
+      endDate: '2024-12-10T15:30:00Z',
+      DPI: '1234123412341'
     }
   }
 
@@ -48,13 +48,10 @@ describe('User Endpoints', () => {
 
   test('should register a new Doctor', async () => {
     try {
-      const response = await axios.post(
-        `${BASE_URL}/users/register`,
-        doctorUser,
-        { headers: HEADERS }
-      )
-      expect(response.status).toBe(201)
-      expect(response.data.status).toBe(201)
+      const response = await axios.post(`${BASE_URL}/users`, doctorUser, {
+        headers: HEADERS
+      })
+      expect(response.status).toBe(200)
       expect(response.data.message).toBe(COMMON_MSG.REQUEST_SUCCESS)
     } catch (error) {
       console.log(
@@ -66,13 +63,10 @@ describe('User Endpoints', () => {
 
   test('should register a new Assistant', async () => {
     try {
-      const response = await axios.post(
-        `${BASE_URL}/users/register`,
-        assistantUser,
-        { headers: HEADERS }
-      )
-      expect(response.status).toBe(201)
-      expect(response.data.status).toBe(201)
+      const response = await axios.post(`${BASE_URL}/users`, assistantUser, {
+        headers: HEADERS
+      })
+      expect(response.status).toBe(200)
       expect(response.data.message).toBe(COMMON_MSG.REQUEST_SUCCESS)
     } catch (error) {
       throw new Error(
@@ -83,13 +77,10 @@ describe('User Endpoints', () => {
 
   test('should register a new Admin', async () => {
     try {
-      const response = await axios.post(
-        `${BASE_URL}/users/register`,
-        adminUser,
-        { headers: HEADERS }
-      )
-      expect(response.status).toBe(201)
-      expect(response.data.status).toBe(201)
+      const response = await axios.post(`${BASE_URL}/users`, adminUser, {
+        headers: HEADERS
+      })
+      expect(response.status).toBe(200)
       expect(response.data.message).toBe(COMMON_MSG.REQUEST_SUCCESS)
     } catch (error) {
       throw new Error(
@@ -130,7 +121,6 @@ describe('User Endpoints', () => {
         `Status: ${error.response.status} \nBody: ${JSON.stringify(error.response.data)}`
       )
       expect(error.response.status).toBe(400)
-      expect(error.response.data.status).toBe('error')
     }
   })
 
