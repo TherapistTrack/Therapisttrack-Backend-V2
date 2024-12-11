@@ -18,7 +18,7 @@ func Logging(next http.Handler) http.Handler {
 		duration := time.Since(start)
 
 		// Log the request details using zerolog
-		log.Info().
+		log.Debug().
 			Str("method", r.Method).
 			Str("route", r.URL.Path).
 			Int("status", wrappedWriter.statusCode).
@@ -38,4 +38,13 @@ type responseWriter struct {
 func (rw *responseWriter) WriteHeader(code int) {
 	rw.statusCode = code
 	rw.ResponseWriter.WriteHeader(code)
+}
+
+func LogErrorRequest(err error, r *http.Request, status int, body *[]byte) {
+	log.Err(err).
+		Str("method", r.Method).
+		Str("route", r.URL.Path).
+		Int("status", status).
+		RawJSON("body", *body).
+		Msg("Request failed")
 }

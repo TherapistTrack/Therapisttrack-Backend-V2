@@ -1,4 +1,4 @@
-package mongo
+package mongo_cli
 
 import (
 	"context"
