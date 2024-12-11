@@ -11,6 +11,7 @@ import (
 // ConfigureLogger sets up the zerolog output based on the provided configuration
 func ConfigureLogger(config *config.LoggingConfig) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	switch config.LoggingMethod {
 	case "CONSOLE":
 		// Use a human-readable console output
