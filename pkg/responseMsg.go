@@ -35,6 +35,7 @@ var (
 	DoctorIsNotOwner = &ResponseMsg{"Doctor is not the owner of the template.", 403}
 
 	// 404: Resource not found
+	UserNotFound            = &ResponseMsg{"User not found.", 404}
 	DoctorNotFound          = &ResponseMsg{"Doctor not found.", 404}
 	TemplateNotFound        = &ResponseMsg{"Template not found.", 404}
 	FieldNotFound           = &ResponseMsg{"Field not found.", 404}

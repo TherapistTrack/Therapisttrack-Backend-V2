@@ -20,6 +20,7 @@ type Api struct {
 	CheckHealthHandler http.HandlerFunc
 
 	CreateUserHandler http.HandlerFunc
+	DeleteUserHandler http.HandlerFunc
 }
 
 func NewApi(
@@ -37,5 +38,6 @@ func NewApi(
 		CheckHealthHandler: health.CheckHealthHandler,
 
 		CreateUserHandler: userHandlers.NewCreateUserHandler(&userService),
+		DeleteUserHandler: userHandlers.NewDeleteUserHandler(&userService),
 	}
 }
