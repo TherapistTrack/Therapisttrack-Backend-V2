@@ -17,7 +17,13 @@ func (s *UserService) CreateUser(ctx context.Context, user *services.User) (stri
 	// Collections
 	userColl := s.dbClient.DB.Collection("User")
 
+	userId, err := primitive.ObjectIDFromHex(user.Id)
+	if err != nil {
+		return "", "", pkg.MissingFields
+	}
+
 	dbUser := mongo_cli.UserModel{
+		Id:        userId,
 		Names:     user.Names,
 		LastNames: user.LastNames,
 		Phones:    user.Phones,
@@ -36,7 +42,6 @@ func (s *UserService) CreateUser(ctx context.Context, user *services.User) (stri
 	}
 
 	log.Debug().Msg("Create Role Dependent Info")
-	userId := userResult.InsertedID.(primitive.ObjectID)
 	var roleResult *mongo.InsertOneResult
 	switch user.Role {
 	case "Admin":
@@ -47,7 +52,7 @@ func (s *UserService) CreateUser(ctx context.Context, user *services.User) (stri
 			return "", "", err
 		}
 	case "Assistant":
-		roleResult, err = createDoctor(ctx, s.dbClient, user, userId)
+		roleResult, err = createAssistant(ctx, s.dbClient, user, userId)
 		if err != nil {
 			return "", "", err
 		}
@@ -89,7 +94,7 @@ func createAssistant(ctx context.Context, dbClient *mongo_cli.MongoClient, user 
 	startDate, _ := time.Parse(time.RFC3339, user.RoleDependentInfo.StartDate)
 	endDate, _ := time.Parse(time.RFC3339, user.RoleDependentInfo.EndDate)
 
-	if startDate.Before(endDate) {
+	if startDate.After(endDate) {
 		return nil, pkg.DateNotPrevious
 	}
 

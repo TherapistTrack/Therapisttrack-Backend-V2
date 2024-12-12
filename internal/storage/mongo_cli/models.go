@@ -21,7 +21,7 @@ type DoctorModel struct {
 }
 
 type AssistantModel struct {
-	Id        primitive.ObjectID `bson:"_id"`
+	Id        primitive.ObjectID `bson:"_id,omitempty"`
 	User      primitive.ObjectID `bson:"user"`
 	StartDate primitive.DateTime `bson:"startDate"`
 	EndDate   primitive.DateTime `bson:"endDate"`
