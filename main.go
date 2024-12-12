@@ -56,7 +56,7 @@ func main() {
 		r.Get("/users/@me", mw.CheckPermissions([]string{"read:users"})(app.CreateUserHandler))
 		r.Get("/users/:id", mw.CheckPermissions([]string{"read:users"})(app.CreateUserHandler))
 		r.Post("/users", mw.CheckPermissions([]string{"create:users"})(app.CreateUserHandler))
-		r.Delete("/users", mw.CheckPermissions([]string{"delete:users"})(app.CreateUserHandler))
+		r.Delete("/users", mw.CheckPermissions([]string{"delete:users"})(app.DeleteUserHandler))
 		r.Put("/users", mw.CheckPermissions([]string{"update:users"})(app.CreateUserHandler))
 
 		// RecordTemplate

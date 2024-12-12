@@ -168,18 +168,26 @@ describe('User Endpoints', () => {
     }
   })
 
-  test('should delete Doctor and assistant', async () => {
+  test('should delete Doctor', async () => {
     try {
-      const response1 = await axios.delete(`${BASE_URL}/users/delete`, {
+      const response = await axios.delete(`${BASE_URL}/users`, {
         data: { id: doctorUser.id },
         headers: HEADERS
       })
-      const response2 = await axios.delete(`${BASE_URL}/users/delete`, {
+      expect(response.status).toBe(200)
+    } catch (error) {
+      throw new Error(
+        `Test Failed:\n Status: ${error.response.status} \nBody: ${JSON.stringify(error.response.data)}`
+      )
+    }
+  })
+  test('should delete Assistant', async () => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/users`, {
         data: { id: assistantUser.id },
         headers: HEADERS
       })
-      expect(response1.status).toBe(200)
-      expect(response2.status).toBe(200)
+      expect(response.status).toBe(200)
     } catch (error) {
       throw new Error(
         `Test Failed:\n Status: ${error.response.status} \nBody: ${JSON.stringify(error.response.data)}`
