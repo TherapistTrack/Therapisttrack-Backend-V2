@@ -92,7 +92,7 @@ func NewCreateUserHandler(s *user.UserService) http.HandlerFunc {
 		if err != nil {
 			body, _ := json.Marshal(data)
 			serviceError := err.(*pkg.ResponseMsg)
-			md.LogErrorRequest(err, r, http.StatusBadRequest, &body)
+			md.LogErrorRequest(serviceError, r, serviceError.StatusCode, &body)
 			http.Error(w, fmt.Sprintf(`{"message": "%s"}`, serviceError.Message), serviceError.StatusCode)
 			return
 		}
