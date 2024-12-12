@@ -42,11 +42,11 @@ func NewMongoClient(config *config.DatabaseConfig) (*MongoClient, error) {
 		return nil, fmt.Errorf("failed to connect to MongoDB: %v", err)
 	}
 
-	log.Debug().Msg("Connection to DB succesfull")
+	log.Info().Msg("Connection to DB succesfull")
 
 	// Ping the MongoDB server to verify connection
 	db := client.Database(config.DBName)
-	if err := db.RunCommand(ctx, bson.D{{"ping", 1}}).Err(); err != nil {
+	if err := db.RunCommand(ctx, bson.D{{Key: "ping", Value: 1}}).Err(); err != nil {
 		return nil, fmt.Errorf("failed to ping MongoDB: %v", err)
 	}
 

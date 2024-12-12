@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/TherapistTrack/Therapisttrack-Backend-V2/api"
@@ -72,6 +73,6 @@ func main() {
 	})
 
 	// Start server
-	log.Printf("Starting server on port %s", config.APIPort)
+	log.Info().Msg(fmt.Sprintf("Starting server on port %s", config.APIPort))
 	log.Fatal().Err(http.ListenAndServe(":"+config.APIPort, r))
 }
