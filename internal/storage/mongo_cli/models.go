@@ -1,6 +1,8 @@
 package mongo_cli
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type UserModel struct {
 	Id                primitive.ObjectID `bson:"_id,omitempty"`
@@ -26,4 +28,20 @@ type AssistantModel struct {
 	StartDate primitive.DateTime `bson:"startDate"`
 	EndDate   primitive.DateTime `bson:"endDate"`
 	DPI       string             `bson:"DPI"`
+}
+
+type PatientTemplate struct {
+	Id 				primitive.ObjectID 	`bson:"_id"`
+	Doctor 			string			 	`bson:"doctor"`
+	Name 			string 				`bson:"name"`
+	Categories		[]string			`bson:"categories"`
+	LastUpdate		primitive.DateTime 	`bson:"lastUpdate"`
+	Fields			[]PatientFields		`bson:"fiels"`
+}
+
+type PatientFields struct {
+	Name			string		`bson:"name"`
+	Type			string		`bson:"type"`
+	Options 		[]string	`bson:"options"`
+	Description 	string		`bson:"description"`
 }

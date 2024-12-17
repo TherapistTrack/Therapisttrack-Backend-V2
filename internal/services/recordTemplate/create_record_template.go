@@ -1,56 +1,58 @@
 package recordtemplate
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/TherapistTrack/Therapisttrack-Backend-V2/internal/services"
+	"github.com/TherapistTrack/Therapisttrack-Backend-V2/internal/storage/mongo_cli"
 	"github.com/TherapistTrack/Therapisttrack-Backend-V2/pkg"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func (s *RecordTemplateService) createRecordTemplate(recordTemplate *services.PatientTemplate) error {
+func (s *RecordTemplateService) CreateRecordTemplate(ctx context.Context, recordTemplate *services.PatientTemplate) (string, string, error) {
 	coll := s.dbClient.DB.Collection("PatientTemplate")
 
-	if recordTemplate.Doctor == "" || recordTemplate.Name == "" || recordTemplate.Categories == nil || recordTemplate.Fields == nil {
-		return fmt.Errorf(pkg.MissingFields)
-	}
 
-	if len(recordTemplate.Categories) == 0 || len(recordTemplate.Fields) == 0 {
-		return fmt.Errorf(pkg.MissingFields)	  
-	}
+	fields := make([]mongo_cli.PatientFields, len(recordTemplate.Fields))
 
-	fieldNames := make(map[string]bool)
-	for _, field := range recordTemplate.Fields {
-		if fieldNames[field.Name] {
-			return fmt.Errorf(pkg.DuplicateFieldNames)
-		}
-		fieldNames[field.Name] = true
-
-		reservedNames := map[string]bool{
-			"id": true,
-			"name": true,
-		}
-
-		if reservedNames[field.Name] {
-			return fmt.Errorf(pkg.ReservedFieldNames)
-		}
-
-		if field.Type == "CHOICE" && (field.Options == nil || len(field.Options) == 0){
-			return fmt.Errorf(pkg.MissingFields)
+	for i, field := range recordTemplate.Fields {
+		fields[i] = mongo_cli.PatientFields{
+			Name: field.Name,
+			Type: field.Type,
+			Options: field.Options,
+			Description: field.Description,
 		}
 	}
 
-	existingObject := coll.FindOne(recordTemplate.Name)
+	dbRecordTemplate := mongo_cli.PatientTemplate{
+		Doctor: recordTemplate.Doctor,
+		Name: recordTemplate.Name,
+		Categories: recordTemplate.Categories,
+		Fields: fields	,
+	}
+
+	existingObject := coll.FindOne(ctx, recordTemplate.Name)
 
 	if existingObject != nil {
-		return fmt.Errorf(pkg.ResourceWithNameAlreadyExist)
+		return "", "", pkg.ResourceWithNameAlreadyExist
 	}
 
 	if !primitive.IsValidObjectID(recordTemplate.Doctor) {
-		return fmt.Errorf(pkg.DoctorNotFound)
+		return "", "", pkg.DoctorNotFound
 	}
 
-	coll.Aggregate(recordTemplate)
+	log.Debug().Msg("Insert User on DB")
 
-	return nil
+	recordTemplateResult, err := coll.InsertOne(ctx, dbRecordTemplate)
+
+	if err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			return "", "", pkg.ResourceWithNameAlreadyExist
+		}
+		return "", "", pkg.BadDatabaseOperation
+	}
+
+	return recordTemplate.Doctor, recordTemplateResult.InsertedID.(primitive.ObjectID).Hex(), nil
 }
