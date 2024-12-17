@@ -68,8 +68,7 @@ userRegister:
           application/json:
             schema:
               $ref: '#/components/schemas/ErrorResponse'
-
-userDelete:
+              
   delete:
     tags:
       - Gestión de usuarios
@@ -99,7 +98,6 @@ userDelete:
             schema:
               $ref: '#/components/schemas/ErrorResponse'
 
-userUpdate:
   put:
     tags:
       - Gestión de usuarios

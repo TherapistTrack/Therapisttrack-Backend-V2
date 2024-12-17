@@ -68,18 +68,14 @@ tags:
       ```
 
 paths:
-  /users/register:
+  /users:
     $ref: './paths/user_management.yaml#/userRegister'
-  /users/update:
-    $ref: './paths/user_management.yaml#/userUpdate'
-  /users/delete:
-    $ref: './paths/user_management.yaml#/userDelete'
-  /users/list:
-    $ref: './paths/user_management.yaml#/userList'
   /users/@me:
     $ref: './paths/user_management.yaml#/userMe'
   /users/{:id}:
     $ref: './paths/user_management.yaml#/userGetByID'
+  /users/list:
+    $ref: './paths/user_management.yaml#/userList'
 
   /doctor/PatientTemplate:
     $ref: './paths/patient_template.yaml#/doctorPatientTemplate'

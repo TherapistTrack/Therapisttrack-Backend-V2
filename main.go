@@ -6,7 +6,7 @@ import (
 	"github.com/TherapistTrack/Therapisttrack-Backend-V2/api"
 	mw "github.com/TherapistTrack/Therapisttrack-Backend-V2/api/middlewares"
 	"github.com/TherapistTrack/Therapisttrack-Backend-V2/config"
-	"github.com/TherapistTrack/Therapisttrack-Backend-V2/internal/storage/mongo"
+	"github.com/TherapistTrack/Therapisttrack-Backend-V2/internal/storage/mongo_cli"
 	"github.com/TherapistTrack/Therapisttrack-Backend-V2/pkg"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -26,7 +26,7 @@ func main() {
 	pkg.ConfigureLogger(&config.LoggingConfig)
 
 	// Database Client
-	mongoClient, err := mongo.NewMongoClient(&config.DatabaseConfig)
+	mongoClient, err := mongo_cli.NewMongoClient(&config.DatabaseConfig)
 
 	defer mongoClient.Close()
 
